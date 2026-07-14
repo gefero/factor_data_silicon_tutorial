@@ -1,6 +1,8 @@
 [🇪🇸 Español](README_ES.md) | **🇬🇧 English**
 
 # Introduction
+**Silicon sampling** refers to the use of large language models (LLMs) to simulate the responses that human participants would give in surveys, experiments, or interviews. By conditioning a model on socio-demographic profiles (age, gender, education, ideology, country, etc.), researchers generate "silicon samples": synthetic respondents whose answers are meant to approximate those of specific human subpopulations. The approach has been proposed as a fast, low-cost complement to traditional data collection —for piloting instruments, exploring hypotheses, or approximating hard-to-reach groups— but its reliability is still under active debate: models can reproduce social biases, flatten within-group variability, and align unevenly across cultures and languages.
+
 This repository contains materials for the Silicon Sampling workshop. To date, the workshop has been taught at
 - Max Planck Institute for Demographic Research - Summer Data Science Incubator Program
 - SICSS 2026 - Buenos Aires
@@ -39,6 +41,21 @@ You can open the tutorial notebooks directly in Google Colab:
 
 # Slides
 - [View presentation](https://docs.google.com/presentation/d/1NYN-YYr1fLNvnJ9whPko7_ZYv6M9Wp5eVbb4zZ98Xj4/edit?usp=sharing)
+
+# Stack
+The tutorial runs entirely in **Python 3** on **Jupyter / Google Colab** notebooks. The main components are:
+
+- **Runtime & infrastructure**
+  - [Jupyter](https://jupyter.org/) notebooks executed on [Google Colab](https://colab.research.google.com/) — `google.colab` is used to manage API keys as secrets (`userdata`) and to mount Google Drive.
+- **LLM backends**
+  - [OpenAI Python SDK](https://github.com/openai/openai-python) (`openai`) to query proprietary models through the Chat Completions API — e.g. `gpt-4o`.
+  - [Ollama](https://ollama.com/) (`ollama`) to run open-weight models on the Colab runtime — e.g. `gpt-oss:20b` and `gpt-oss:120b`.
+- **Data handling & analysis**
+  - [pandas](https://pandas.pydata.org/) for reading, transforming and aggregating the survey and simulation data.
+- **Visualization**
+  - [matplotlib](https://matplotlib.org/) and [seaborn](https://seaborn.pydata.org/) for the figures and tables.
+- **Utilities**
+  - [tqdm](https://tqdm.github.io/) for progress bars, plus Python standard-library modules (`json`, `os`, `re`, `time`, `datetime`, `pathlib`).
 
 # Data sources
 The tutorial uses data from the 2017-2022 wave of the [World Values Survey](https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp)

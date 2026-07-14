@@ -1,6 +1,8 @@
 **🇪🇸 Español** | [🇬🇧 English](README.md)
 
 # Introducción
+El **silicon sampling** (o muestreo de silicio) consiste en usar grandes modelos de lenguaje (LLMs) para simular las respuestas que darían participantes humanos en encuestas, experimentos o entrevistas. Al condicionar al modelo con perfiles sociodemográficos (edad, género, educación, ideología, país, etc.), se generan "muestras de silicio": encuestados sintéticos cuyas respuestas buscan aproximar las de subpoblaciones humanas específicas. Se lo ha propuesto como un complemento rápido y de bajo costo a la recolección de datos tradicional —para pilotear instrumentos, explorar hipótesis o aproximar grupos difíciles de alcanzar—, aunque su fiabilidad sigue en debate: los modelos pueden reproducir sesgos sociales, aplanar la variabilidad interna de los grupos y alinearse de manera desigual entre culturas e idiomas.
+
 Este repositorio contiene materiales para el taller de Silicon Sampling. A la fecha, el taller se ha dictado en
 - Max Planck Institute for Demographic Research - Summer Data Science Incubator Program
 - SICSS 2026 - Buenos Aires
@@ -39,6 +41,21 @@ Podés abrir los notebooks del tutorial directamente en Google Colab:
 
 # Diapositivas
 - [Ver presentación](https://docs.google.com/presentation/d/1NYN-YYr1fLNvnJ9whPko7_ZYv6M9Wp5eVbb4zZ98Xj4/edit?usp=sharing)
+
+# Stack
+El tutorial corre íntegramente en **Python 3** sobre notebooks de **Jupyter / Google Colab**. Los componentes principales son:
+
+- **Entorno e infraestructura**
+  - Notebooks de [Jupyter](https://jupyter.org/) ejecutados en [Google Colab](https://colab.research.google.com/) — se usa `google.colab` para gestionar las API keys como secretos (`userdata`) y para montar Google Drive.
+- **Backends de LLM**
+  - [SDK de OpenAI para Python](https://github.com/openai/openai-python) (`openai`) para consultar modelos propietarios a través de la API de Chat Completions — por ejemplo `gpt-4o`.
+  - [Ollama](https://ollama.com/) (`ollama`) para correr modelos de pesos abiertos en el entorno de Colab — por ejemplo `gpt-oss:20b` y `gpt-oss:120b`.
+- **Manejo y análisis de datos**
+  - [pandas](https://pandas.pydata.org/) para leer, transformar y agregar los datos de la encuesta y de las simulaciones.
+- **Visualización**
+  - [matplotlib](https://matplotlib.org/) y [seaborn](https://seaborn.pydata.org/) para los gráficos y las tablas.
+- **Utilidades**
+  - [tqdm](https://tqdm.github.io/) para las barras de progreso, además de módulos de la biblioteca estándar de Python (`json`, `os`, `re`, `time`, `datetime`, `pathlib`).
 
 # Fuentes de datos
 En el tutorial se han usado datos de la onda 2017-2022 de la [World Value Survey](https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp)
