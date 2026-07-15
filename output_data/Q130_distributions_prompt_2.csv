@@ -1,0 +1,38 @@
+model,size,country,category,n,proportion
+gpt-4o,4o,Argentina,Let anyone come who wants to,39,0.05726872246696035
+gpt-4o,4o,Argentina,Let people come as long as there are jobs available,446,0.6549192364170338
+gpt-4o,4o,Argentina,Place strict limits on the number of foreigners who can come here,190,0.2790014684287812
+gpt-4o,4o,Argentina,Prohibit people coming here from other countries,6,0.00881057268722467
+gpt-4o,4o,United States,Let anyone come who wants to,165,0.11324639670555937
+gpt-4o,4o,United States,Let people come as long as there are jobs available,628,0.4310226492793411
+gpt-4o,4o,United States,Place strict limits on the number of foreigners who can come here,200,0.13726835964310227
+gpt-4o,4o,United States,Prohibit people coming here from other countries,7,0.004804392587508579
+gpt-4o,4o,United States,invalid/no answer,457,0.31365820178448867
+gpt-4o,4o,Uruguay,Let anyone come who wants to,183,0.2436750998668442
+gpt-4o,4o,Uruguay,Let people come as long as there are jobs available,392,0.521970705725699
+gpt-4o,4o,Uruguay,Place strict limits on the number of foreigners who can come here,171,0.22769640479360853
+gpt-4o,4o,Uruguay,Prohibit people coming here from other countries,5,0.006657789613848202
+gpt-oss,120B,Argentina,Let anyone come who wants to,39,0.05726872246696035
+gpt-oss,120B,Argentina,Let people come as long as there are jobs available,515,0.7562408223201175
+gpt-oss,120B,Argentina,Place strict limits on the number of foreigners who can come here,124,0.18208516886930984
+gpt-oss,120B,Argentina,Prohibit people coming here from other countries,3,0.004405286343612335
+gpt-oss,120B,United States,Let anyone come who wants to,242,0.16609471516815374
+gpt-oss,120B,United States,Let people come as long as there are jobs available,1054,0.723404255319149
+gpt-oss,120B,United States,Place strict limits on the number of foreigners who can come here,159,0.1091283459162663
+gpt-oss,120B,United States,Prohibit people coming here from other countries,2,0.0013726835964310226
+gpt-oss,120B,Uruguay,Let anyone come who wants to,184,0.24500665778961384
+gpt-oss,120B,Uruguay,Let people come as long as there are jobs available,421,0.5605858854860186
+gpt-oss,120B,Uruguay,Place strict limits on the number of foreigners who can come here,135,0.17976031957390146
+gpt-oss,120B,Uruguay,Prohibit people coming here from other countries,11,0.014647137150466045
+gpt-oss,20B,Argentina,Let anyone come who wants to,38,0.055800293685756244
+gpt-oss,20B,Argentina,Let people come as long as there are jobs available,546,0.801762114537445
+gpt-oss,20B,Argentina,Place strict limits on the number of foreigners who can come here,95,0.1395007342143906
+gpt-oss,20B,Argentina,Prohibit people coming here from other countries,2,0.002936857562408223
+gpt-oss,20B,United States,Let anyone come who wants to,234,0.16060398078242966
+gpt-oss,20B,United States,Let people come as long as there are jobs available,1071,0.7350720658888126
+gpt-oss,20B,United States,Place strict limits on the number of foreigners who can come here,150,0.1029512697323267
+gpt-oss,20B,United States,Prohibit people coming here from other countries,2,0.0013726835964310226
+gpt-oss,20B,Uruguay,Let anyone come who wants to,183,0.2436750998668442
+gpt-oss,20B,Uruguay,Let people come as long as there are jobs available,431,0.5739014647137151
+gpt-oss,20B,Uruguay,Place strict limits on the number of foreigners who can come here,136,0.1810918774966711
+gpt-oss,20B,Uruguay,Prohibit people coming here from other countries,1,0.0013315579227696406

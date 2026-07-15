@@ -1,0 +1,13 @@
+model,size,country,category,n,proportion
+empirical,-,Argentina,Let anyone come who wants to,105,0.1383399209486166
+empirical,-,Argentina,Let people come as long as there are jobs available,320,0.42160737812911725
+empirical,-,Argentina,Place strict limits on the number of foreigners who can come here,292,0.3847167325428195
+empirical,-,Argentina,Prohibit people coming here from other countries,42,0.05533596837944664
+empirical,-,United States,Let anyone come who wants to,232,0.15782312925170067
+empirical,-,United States,Let people come as long as there are jobs available,615,0.41836734693877553
+empirical,-,United States,Place strict limits on the number of foreigners who can come here,582,0.39591836734693875
+empirical,-,United States,Prohibit people coming here from other countries,41,0.027891156462585033
+empirical,-,Uruguay,Let anyone come who wants to,229,0.2913486005089059
+empirical,-,Uruguay,Let people come as long as there are jobs available,331,0.4211195928753181
+empirical,-,Uruguay,Place strict limits on the number of foreigners who can come here,189,0.24045801526717558
+empirical,-,Uruguay,Prohibit people coming here from other countries,37,0.047073791348600506
