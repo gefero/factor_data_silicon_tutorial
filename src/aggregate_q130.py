@@ -23,7 +23,7 @@ import pandas as pd
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INPUT_CSV = REPO_ROOT / "input_data" / "WVS_wave7_migracion_prompts.csv"
 RESULTS_DIR = REPO_ROOT / "output_data"
-OUTPUT_DIR = REPO_ROOT / "outputs_for_analys"
+OUTPUT_DIR = REPO_ROOT / "outputs_for_analysis"
 
 INVALID_LABEL = "invalid/no answer"
 
