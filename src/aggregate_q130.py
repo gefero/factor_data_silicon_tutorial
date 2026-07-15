@@ -22,7 +22,8 @@ import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INPUT_CSV = REPO_ROOT / "input_data" / "WVS_wave7_migracion_prompts.csv"
-OUTPUT_DIR = REPO_ROOT / "output_data"
+RESULTS_DIR = REPO_ROOT / "output_data"
+OUTPUT_DIR = REPO_ROOT / "outputs_for_analys"
 
 INVALID_LABEL = "invalid/no answer"
 
@@ -52,7 +53,7 @@ V2_SOURCES = [
 
 
 def aggregate_file(filename: str, model: str, size: str, answer_col: str) -> pd.DataFrame:
-    df = pd.read_csv(OUTPUT_DIR / filename)
+    df = pd.read_csv(RESULTS_DIR / filename)
     answers = df[answer_col].fillna(INVALID_LABEL)
     agg = (
         answers.groupby(df["country"])
@@ -99,6 +100,7 @@ def build_empirical(out_name: str) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
+    OUTPUT_DIR.mkdir(exist_ok=True)
     build(V1_SOURCES, "Q130_distributions_prompt_1.csv")
     build(V2_SOURCES, "Q130_distributions_prompt_2.csv")
     build_empirical("Q130_distributions_empirical.csv")
