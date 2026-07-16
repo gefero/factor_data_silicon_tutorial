@@ -29,6 +29,7 @@ suppressPackageStartupMessages({
 
 set.seed(42)
 N_BOOT <- 2000L
+pdf(NULL)  # keep Rscript from writing Rplots.pdf as a side effect
 
 root <- if (dir.exists("output_data")) "." else ".."
 stopifnot(dir.exists(file.path(root, "output_data")))

@@ -8,6 +8,9 @@ migracion/
 .Rhistory
 .Rapp.history
 
+# Default device output from Rscript
+Rplots.pdf
+
 # Session Data files
 .RData
 .RDataTmp
