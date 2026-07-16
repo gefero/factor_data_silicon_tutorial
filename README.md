@@ -10,6 +10,7 @@ This repository contains materials for the Silicon Sampling workshop. To date, t
 # Folder structure
 ```
 factor_data_silicon_tutorial/
+├── CLAUDE.md
 ├── LICENSE
 ├── README.md
 ├── README_ES.md
@@ -25,14 +26,47 @@ factor_data_silicon_tutorial/
 │   ├── gpt-oss_120b_V1_WVS_silicon_empirico_results.csv
 │   ├── gpt-oss_20B_Q130_v2_WVS_silicon_empirico_results.csv
 │   └── gpt-oss_20b_V1_WVS_silicon_empirico_results.csv
+├── outputs_for_analysis/
+│   ├── Q130_distributions_empirical.csv
+│   ├── Q130_distributions_prompt_1.csv
+│   ├── Q130_distributions_prompt_2.csv
+│   └── prompt_examples.md
+├── results/
+│   ├── metrics.csv
+│   ├── paired_differences.csv
+│   └── report.md
+├── figures/
+│   └── *.png
 └── src/
     ├── EN_tutorial_wvs_silicon_empirico.ipynb
-    └── ES_tutorial_wvs_silicon_empirico.ipynb
+    ├── ES_tutorial_wvs_silicon_empirico.ipynb
+    ├── aggregate_q130.py
+    └── analyze_q130_bias.py
 ```
 
-- `src` contains the tutorial notebooks (English and Spanish versions)
+- `src` contains the tutorial notebooks (English and Spanish versions) and the analysis scripts
 - `input_data` contains raw data
-- `output_data` contains output data (simulations)
+- `output_data` contains output data (per-respondent simulations)
+- `outputs_for_analysis` contains the aggregated Q130 distributions per model × country (simulated prompt V1/V2 and the empirical WVS baseline), plus the full text of both prompts
+- `results` and `figures` contain the outputs of the middle-point bias analysis (see below)
+
+# Middle-point bias analysis (Q130, prompt V1 vs V2)
+
+Beyond the tutorial, the repo includes a reproducible analysis of **middle-point bias** in the silicon samples for WVS Q130 ("What should the government do about people from other countries coming here to work?", a 4-point ordinal scale with no neutral midpoint). Since the scale has no midpoint, the bias is operationalized as **interior-category concentration**: excess probability mass on the two interior options relative to the empirical WVS distributions in Argentina, Uruguay and the United States. Prompt V2 (first-person narrative + anti-moderation instructions) is evaluated as a mitigation of the V1 baseline.
+
+Pipeline:
+
+1. `src/aggregate_q130.py` — aggregates the raw per-respondent results in `output_data/` into the long-format distribution summaries in `outputs_for_analysis/`.
+2. `src/analyze_q130_bias.py` — computes per model × country × prompt metrics (normalized entropy, entropy ratio vs WVS, interior/extreme mass, Jensen–Shannon divergence, ordinal Wasserstein-1, per-category signed errors, mean scale position) with multinomial bootstrap CIs, and runs paired within-model tests of the mitigation hypotheses (Wilcoxon signed-rank, rank-biserial effect sizes, sign test). Outputs: `results/metrics.csv`, `results/paired_differences.csv`, the full write-up in [`results/report.md`](results/report.md), and four 300-dpi figures in `figures/`.
+
+Run from the repo root (requires `pandas`, `scipy`, `matplotlib`):
+
+```bash
+python src/aggregate_q130.py
+python src/analyze_q130_bias.py
+```
+
+Headline findings (details and caveats in [`results/report.md`](results/report.md)): under prompt V1 all three models (gpt-4o, gpt-oss-20B, gpt-oss-120B) place 99–100% of their mass on the two interior categories and are strongly compressed relative to WVS in all 9 model × country cells; prompt V2 reduces interior concentration in 9/9 cells and increases entropy and improves fidelity to WVS (lower JSD) in 8/9, with no overcorrection detected.
 
 # Google Colab version
 You can open the tutorial notebooks directly in Google Colab:
@@ -52,6 +86,7 @@ The tutorial runs entirely in **Python 3** on **Jupyter / Google Colab** noteboo
   - [Ollama](https://ollama.com/) (`ollama`) to run open-weight models on the Colab runtime — e.g. `gpt-oss:20b` and `gpt-oss:120b`.
 - **Data handling & analysis**
   - [pandas](https://pandas.pydata.org/) for reading, transforming and aggregating the survey and simulation data.
+  - [SciPy](https://scipy.org/) for the statistical tests in the middle-point bias analysis (Wilcoxon signed-rank, sign test).
 - **Visualization**
   - [matplotlib](https://matplotlib.org/) and [seaborn](https://seaborn.pydata.org/) for the figures and tables.
 - **Utilities**
