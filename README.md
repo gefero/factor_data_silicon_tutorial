@@ -41,7 +41,8 @@ factor_data_silicon_tutorial/
     ├── EN_tutorial_wvs_silicon_empirico.ipynb
     ├── ES_tutorial_wvs_silicon_empirico.ipynb
     ├── aggregate_q130.py
-    └── analyze_q130_bias.py
+    ├── analyze_q130_bias.py
+    └── q130_aggregation_and_bias_analysis.ipynb
 ```
 
 - `src` contains the tutorial notebooks (English and Spanish versions) and the analysis scripts
@@ -65,6 +66,8 @@ Run from the repo root (requires `pandas`, `scipy`, `matplotlib`):
 python src/aggregate_q130.py
 python src/analyze_q130_bias.py
 ```
+
+The notebook [`src/q130_aggregation_and_bias_analysis.ipynb`](src/q130_aggregation_and_bias_analysis.ipynb) unifies both steps into a single executable document (same code, same outputs), with the figures and tables rendered inline.
 
 Headline findings (details and caveats in [`results/report.md`](results/report.md)): under prompt V1 all three models (gpt-4o, gpt-oss-20B, gpt-oss-120B) place 99–100% of their mass on the two interior categories and are strongly compressed relative to WVS in all 9 model × country cells; prompt V2 reduces interior concentration in 9/9 cells and increases entropy and improves fidelity to WVS (lower JSD) in 8/9, with no overcorrection detected.
 
