@@ -35,14 +35,20 @@ factor_data_silicon_tutorial/
 │   ├── metrics.csv
 │   ├── paired_differences.csv
 │   └── report.md
+├── results_R/
+│   ├── metrics.csv
+│   └── paired_differences.csv
 ├── figures/
+│   └── *.png
+├── figures_R/
 │   └── *.png
 └── src/
     ├── EN_tutorial_wvs_silicon_empirico.ipynb
     ├── ES_tutorial_wvs_silicon_empirico.ipynb
     ├── aggregate_q130.py
     ├── analyze_q130_bias.py
-    └── q130_aggregation_and_bias_analysis.ipynb
+    ├── q130_aggregation_and_bias_analysis.ipynb
+    └── q130_aggregation_and_bias_analysis.R
 ```
 
 - `src` contains the tutorial notebooks (English and Spanish versions) and the analysis scripts
@@ -68,6 +74,12 @@ python src/analyze_q130_bias.py
 ```
 
 The notebook [`src/q130_aggregation_and_bias_analysis.ipynb`](src/q130_aggregation_and_bias_analysis.ipynb) unifies both steps into a single executable document (same code, same outputs), with the figures and tables rendered inline.
+
+An independent **R / tidyverse replication**, [`src/q130_aggregation_and_bias_analysis.R`](src/q130_aggregation_and_bias_analysis.R) (requires `dplyr`, `tidyr`, `readr`, `purrr`, `stringr`, `ggplot2`), re-derives the whole pipeline and cross-checks it against the Python outputs: the recomputed aggregations match `outputs_for_analysis/` exactly and all deterministic metrics match `results/metrics.csv` to < 1e-9 (asserted in the script; only the bootstrap CIs differ, since R and NumPy use different random generators). It writes its outputs to `results_R/` and `figures_R/` (ggplot2 versions of the same four figures):
+
+```bash
+Rscript src/q130_aggregation_and_bias_analysis.R
+```
 
 Headline findings (details and caveats in [`results/report.md`](results/report.md)): under prompt V1 all three models (gpt-4o, gpt-oss-20B, gpt-oss-120B) place 99–100% of their mass on the two interior categories and are strongly compressed relative to WVS in all 9 model × country cells; prompt V2 reduces interior concentration in 9/9 cells and increases entropy and improves fidelity to WVS (lower JSD) in 8/9, with no overcorrection detected.
 
