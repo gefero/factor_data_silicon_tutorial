@@ -10,52 +10,27 @@ This repository contains materials for the Silicon Sampling workshop. To date, t
 # Folder structure
 ```
 factor_data_silicon_tutorial/
-├── CLAUDE.md
-├── LICENSE
-├── README.md
-├── README_ES.md
-├── _config.yml
 ├── imgs/
-│   └── LOGO-FactorData-Negro.png
 ├── input_data/
-│   └── WVS_wave7_migracion_prompts.csv
 ├── output_data/
-│   ├── gpt-4o_Q130_v2_WVS_silicon_empirico_results.csv
-│   ├── gpt-4o_V1_WVS_silicon_empirico_results.csv
-│   ├── gpt-oss_120B_Q130_v2_WVS_silicon_empirico_results.csv
-│   ├── gpt-oss_120b_V1_WVS_silicon_empirico_results.csv
-│   ├── gpt-oss_20B_Q130_v2_WVS_silicon_empirico_results.csv
-│   └── gpt-oss_20b_V1_WVS_silicon_empirico_results.csv
 ├── outputs_for_analysis/
-│   ├── Q130_distributions_empirical.csv
-│   ├── Q130_distributions_prompt_1.csv
-│   ├── Q130_distributions_prompt_2.csv
-│   └── prompt_examples.md
 ├── results/
-│   ├── metrics.csv
-│   ├── paired_differences.csv
-│   └── report.md
 ├── results_R/
-│   ├── metrics.csv
-│   └── paired_differences.csv
 ├── figures/
-│   └── *.png
 ├── figures_R/
-│   └── *.png
 └── src/
-    ├── EN_tutorial_wvs_silicon_empirico.ipynb
-    ├── ES_tutorial_wvs_silicon_empirico.ipynb
-    ├── aggregate_q130.py
-    ├── analyze_q130_bias.py
-    ├── q130_aggregation_and_bias_analysis.ipynb
-    └── q130_aggregation_and_bias_analysis.R
 ```
 
-- `src` contains the tutorial notebooks (English and Spanish versions) and the analysis scripts
-- `input_data` contains raw data
-- `output_data` contains output data (per-respondent simulations)
-- `outputs_for_analysis` contains the aggregated Q130 distributions per model × country (simulated prompt V1/V2 and the empirical WVS baseline), plus the full text of both prompts
-- `results` and `figures` contain the outputs of the middle-point bias analysis (see below)
+- `src` — the tutorial notebooks (English and Spanish versions) and the analysis code: the aggregation and bias-analysis Python scripts, the notebook that unifies them, and the R replication
+- `input_data` — raw data: the WVS Wave 7 respondent profiles used to build the prompts
+- `output_data` — per-respondent simulation results, one CSV per model (gpt-4o, gpt-oss-20B, gpt-oss-120B) and prompt version (V1, V2)
+- `outputs_for_analysis` — aggregated Q130 distributions per model × country (simulated V1/V2 and the empirical WVS baseline), plus the full text of both prompts
+- `results` — outputs of the middle-point bias analysis (see below): metrics and paired-difference tables, and the full report
+- `figures` — the analysis figures (300-dpi PNG)
+- `results_R` / `figures_R` — the same tables and figures produced by the R replication
+- `imgs` — logos and images used by the site
+
+The repo root also holds the licence, this README and its Spanish version (`README_ES.md`), the GitHub Pages configuration (`_config.yml`, `_layouts/`), and `CLAUDE.md` (the specification of the bias analysis).
 
 # Middle-point bias analysis (Q130, prompt V1 vs V2)
 
