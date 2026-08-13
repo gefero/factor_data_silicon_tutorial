@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quizás, quizás, quizás — Etapa 1 (réplica para clase)</title>
+<style>
+  :root{
+    --blue:#68BBE8; --blue-dark:#3d93c4; --yellow:#f4ec4e; --red:#FF6C5D;
+    --gray:#333; --gray-mid:#8a8a8a; --gray-light:#dcdcdc; --bg:#fbfbfb;
+    --maxw:720px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--gray); background:var(--bg); line-height:1.55; font-size:16px;
+    padding:24px 16px 96px;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto}
+  h1{font-size:28px;line-height:1.2;margin:0 0 16px}
+  h2{font-size:20px;margin:32px 0 8px}
+  p{margin:0 0 14px}
+  .muted{color:var(--gray-mid);font-size:14px}
+  .callout{
+    display:flex;gap:12px;padding:12px;border-radius:6px;
+    border:1.5px solid var(--yellow);background:rgba(244,236,78,.15);
+    font-size:14px;margin:16px 0;
+  }
+  .callout.info{border-color:var(--blue);background:rgba(104,187,232,.12)}
+  .progress{height:4px;background:var(--gray-light);border-radius:2px;margin-bottom:28px;overflow:hidden}
+  .progress > i{display:block;height:100%;background:var(--blue);width:0;transition:width .3s}
+  .screen{display:none}
+  .screen.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* ---------- items ---------- */
+  .item{padding:18px 0;border-bottom:1px solid #eee}
+  .item.err{background:rgba(255,108,93,.06);border-radius:6px;padding-left:10px;padding-right:10px}
+  .item-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px}
+  .word{font-weight:600;font-size:17px}
+  .readout{font-variant-numeric:tabular-nums;color:var(--blue-dark);font-weight:600;font-size:15px;opacity:0}
+  .item.touched .readout{opacity:1}
+  .scale{display:flex;justify-content:space-between;font-size:12px;color:var(--gray-mid);margin-top:2px}
+
+  /* single slider */
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;background:transparent;margin:0;height:32px}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--gray-light);border-radius:2px}
+  input[type=range]::-moz-range-track{height:4px;background:var(--gray-light);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--blue);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.28);
+    margin-top:-9px;cursor:grab;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:22px;height:22px;border-radius:50%;background:var(--blue);
+    border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.28);cursor:grab;
+  }
+  /* anti-anclaje: el thumb no se ve hasta que la persona interactúa */
+  .item:not(.touched) input[type=range]::-webkit-slider-thumb{opacity:0}
+  .item:not(.touched) input[type=range]::-moz-range-thumb{opacity:0}
+  .item.err .scale, .item.err .word{color:var(--red)}
+
+  /* dual slider
+     El arrastre lo maneja el contenedor (pointer events), no los <input>. Con dos inputs
+     superpuestos el de arriba se come los clicks del de abajo: cuando los dos thumbs quedan
+     juntos, el de abajo se vuelve inalcanzable y el control parece trabado. Acá los inputs
+     quedan con pointer-events:none — siguen existiendo para teclado y lectores de pantalla —
+     y el contenedor decide en cada click cuál es el thumb más cercano. */
+  .dual{
+    position:relative;height:40px;cursor:pointer;
+    touch-action:pan-y;              /* el gesto horizontal mueve el slider, el vertical scrollea */
+    -webkit-user-select:none;user-select:none;
+  }
+  .dual .track,.dual .fill{position:absolute;top:18px;height:4px;border-radius:2px}
+  .dual .track{left:0;right:0;background:var(--gray-light)}
+  .dual .fill{background:var(--blue)}
+  .item:not(.touched) .dual .fill{background:var(--gray-light)}
+  .dual input[type=range]{
+    position:absolute;left:0;top:0;width:100%;height:40px;margin:0;
+    pointer-events:none;                /* nunca reciben el puntero: lo maneja .dual */
+  }
+  .dual input[type=range]::-webkit-slider-runnable-track{background:transparent;height:4px}
+  .dual input[type=range]::-moz-range-track{background:transparent;height:4px}
+  .dual input[type=range]::-webkit-slider-thumb{margin-top:-9px}
+  /* el thumb que se está arrastrando va arriba, para que se vea cuál agarraste si están juntos */
+  .dual input[type=range].arriba{z-index:2}
+  .dual input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--blue-dark);outline-offset:2px}
+  .dual input[type=range]:focus-visible::-moz-range-thumb{outline:2px solid var(--blue-dark);outline-offset:2px}
+
+  /* ---------- form fields ---------- */
+  label.fl{display:block;font-weight:600;margin:22px 0 6px}
+  select,input[type=text],input[type=number]{
+    width:100%;max-width:340px;padding:10px 12px;font-size:16px;font-family:inherit;
+    border:1px solid var(--gray-light);border-radius:6px;background:#fff;color:var(--gray);
+  }
+  select:focus,input:focus{outline:2px solid var(--blue);border-color:var(--blue)}
+  .field.err select,.field.err input{border-color:var(--red)}
+  .field .msg{color:var(--red);font-size:13px;margin-top:4px;display:none}
+  .field.err .msg{display:block}
+
+  /* ---------- buttons ---------- */
+  .actions{margin-top:32px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  button{
+    font-family:inherit;font-size:16px;font-weight:600;padding:13px 30px;border-radius:999px;
+    border:none;background:var(--blue);color:#fff;cursor:pointer;transition:background .15s;
+  }
+  button:hover{background:var(--blue-dark)}
+  button.ghost{background:transparent;color:var(--blue-dark);border:1.5px solid var(--blue)}
+  button.ghost:hover{background:rgba(104,187,232,.12)}
+  .formerr{color:var(--red);font-size:14px;font-weight:600;display:none;margin-top:12px}
+  .formerr.show{display:block}
+  code{background:#eee;padding:1px 5px;border-radius:3px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="progress"><i id="bar"></i></div>
+
+  <!-- ══════════════ 0. INTRO ══════════════ -->
+  <section class="screen active" id="s-intro">
+    <h1>Antes de empezar</h1>
+
+    <div class="callout">
+      <div>
+        <strong>Réplica con fines docentes.</strong><br>
+        Esta es una reimplementación de la Etapa 1 del experimento
+        <em>“Quizás, quizás, quizás”</em> (El Gato y La Caja / Decision-making Lab, University of Rochester),
+        armada para el taller de <em>silicon sampling</em>. No es el estudio original y los datos
+        no se comparten con el equipo original.
+      </div>
+    </div>
+
+    <p>Lo que buscamos es estudiar cómo las personas interpretamos y usamos distintas
+    expresiones verbales de probabilidad.</p>
+
+    <p>Lleva unos 5 minutos. Tu participación es voluntaria y podés interrumpirla cuando quieras.
+    Las respuestas son anónimas: no pedimos nombre, mail ni ningún dato que te identifique.</p>
+
+    <p><strong>Qué pasa con tus respuestas:</strong> se juntan con las del resto del curso en una
+    única tabla anónima. Esa tabla la vamos a usar en clase para compararla con respuestas
+    simuladas por modelos de lenguaje, y todo el curso va a tener acceso a ella. Es posible que
+    quede publicada junto al material del taller.</p>
+
+    <div class="actions">
+      <button id="btn-intro">Empezar</button>
+    </div>
+  </section>
+
+  <!-- ══════════════ 1. INSTRUCCIONES ══════════════ -->
+  <section class="screen" id="s-instr">
+    <h1>Expresiones verbales</h1>
+    <p>Nuestro lenguaje está lleno de expresiones que usamos para comunicar diferentes grados de
+    certeza sobre una afirmación (<em>creo</em>, <em>puede ser</em>, <em>tal vez</em>, etc.).</p>
+    <p>A continuación te vamos a hacer algunas preguntas sobre estas expresiones.</p>
+    <div class="callout info">
+      <div><strong>TIP:</strong> movés el círculo dentro de la escala para indicar tu respuesta.
+      El círculo aparece recién cuando lo tocás: no hay ninguna posición inicial sugerida.</div>
+    </div>
+    <div class="actions">
+      <button id="btn-instr">Empezar</button>
+      <button class="ghost" data-back="s-intro">Volver</button>
+    </div>
+  </section>
+
+  <!-- ══════════════ 2. VALOR PUNTUAL ══════════════ -->
+  <section class="screen" id="s-punto">
+    <h1>¿Cuál es el valor de cada expresión?</h1>
+    <p>Supongamos que cada expresión describe la probabilidad de que algo pase.</p>
+    <p>Asignale a cada expresión, en una escala de 0 a 100, la probabilidad de que un evento suceda.</p>
+    <div id="lista-punto"></div>
+    <div class="actions">
+      <button id="btn-punto">Continuar</button>
+      <button class="ghost" data-back="s-instr">Volver</button>
+    </div>
+    <div class="formerr" id="err-punto">Falta responder alguna consigna.</div>
+  </section>
+
+  <!-- ══════════════ 3. RANGO ══════════════ -->
+  <section class="screen" id="s-rango">
+    <h1>¿Y el rango de probabilidad?</h1>
+    <p>Ahora, en lugar de pensar en un único valor para cada expresión, pensemos en un rango.</p>
+    <p>Indicá el rango de probabilidad (mínimo y máximo) que mejor representa a cada expresión.
+    <strong>En otras palabras, el rango de valores para el cual usarías cada una.</strong></p>
+    <div id="lista-rango"></div>
+    <div class="actions">
+      <button id="btn-rango">Continuar</button>
+      <button class="ghost" data-back="s-punto">Volver</button>
+    </div>
+    <div class="formerr" id="err-rango">Falta responder alguna consigna.</div>
+  </section>
+
+  <!-- ══════════════ 4. DEMOGRÁFICOS ══════════════ -->
+  <section class="screen" id="s-demo">
+    <h1>¡Esto último y terminamos!</h1>
+
+    <div class="field" id="f-edad">
+      <label class="fl" for="edad">Edad</label>
+      <input type="number" id="edad" min="14" max="99" step="1" style="max-width:120px" inputmode="numeric">
+      <div class="msg">Este campo es requerido.</div>
+    </div>
+
+    <div class="field" id="f-genero">
+      <label class="fl" for="genero">Género</label>
+      <select id="genero">
+        <option value="">Elegí una opción</option>
+        <option value="mujer">Mujer</option>
+        <option value="varon">Varón</option>
+        <option value="no-bin">No binario</option>
+        <option value="gen-fluido">Género fluido</option>
+        <option value="no-decirlo">Prefiero no decirlo</option>
+      </select>
+      <div class="msg">Este campo es requerido.</div>
+    </div>
+
+    <div class="field" id="f-educ">
+      <label class="fl" for="nivel_educativo">Nivel educativo (máximo alcanzado)</label>
+      <select id="nivel_educativo">
+        <option value="">Elegí una opción</option>
+        <option value="primario-incompleto">Primario incompleto</option>
+        <option value="primario-completo">Primario completo</option>
+        <option value="secundario-incompleto">Secundario incompleto</option>
+        <option value="secundario-completo">Secundario completo</option>
+        <option value="terciario-incompleto">Terciario incompleto</option>
+        <option value="terciario-completo">Terciario completo</option>
+        <option value="universidad-incompleta">Universidad incompleta</option>
+        <option value="universidad-completa">Universidad completa</option>
+        <option value="posgrado-incompleto">Posgrado incompleto</option>
+        <option value="posgrado-completo">Posgrado completo</option>
+      </select>
+      <div class="msg">Este campo es requerido.</div>
+    </div>
+
+    <div class="field" id="f-pais">
+      <label class="fl" for="pais">¿En qué país estás?</label>
+      <select id="pais">
+        <option value="">Elegí una opción</option>
+        <option value="argentina">Argentina</option>
+        <option value="uruguay">Uruguay</option>
+        <option value="chile">Chile</option>
+        <option value="paraguay">Paraguay</option>
+        <option value="bolivia">Bolivia</option>
+        <option value="brasil">Brasil</option>
+        <option value="peru">Perú</option>
+        <option value="colombia">Colombia</option>
+        <option value="mexico">México</option>
+        <option value="espana">España</option>
+        <option value="estados-unidos">Estados Unidos</option>
+        <option value="alemania">Alemania</option>
+        <option value="otro">Otro</option>
+      </select>
+      <div class="msg">Este campo es requerido.</div>
+    </div>
+
+    <div class="field" id="f-prov" style="display:none">
+      <label class="fl" for="provincia">¿En qué provincia estás?</label>
+      <select id="provincia"><option value="">Elegí una opción</option></select>
+      <div class="msg">Este campo es requerido.</div>
+    </div>
+
+    <div class="actions">
+      <button id="btn-demo">Enviar respuestas</button>
+      <button class="ghost" data-back="s-rango">Volver</button>
+    </div>
+    <div class="formerr" id="err-demo">Revisá los campos marcados.</div>
+  </section>
+
+  <!-- ══════════════ 5. GRACIAS ══════════════ -->
+  <section class="screen" id="s-fin">
+    <h1>¡Listo! Gracias por participar.</h1>
+    <p id="estado-envio" class="muted">Enviando…</p>
+    <p>Si el envío falló, o si en la clase te piden entregar tu archivo, descargá tu respuesta:</p>
+    <div class="actions">
+      <button id="btn-csv">Descargar mi respuesta (CSV)</button>
+      <button class="ghost" id="btn-json">Descargar JSON</button>
+    </div>
+    <div class="callout info" style="margin-top:32px">
+      <div>Tu identificador anónimo es <code id="idout"></code>. Anotalo sólo si querés poder pedir
+      que borremos tu respuesta más adelante.</div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   CONFIGURACIÓN
+   ═══════════════════════════════════════════════════════════════════
+   ENDPOINT: URL de la web app de Google Apps Script (ver README_despliegue.md).
+   Si la dejás vacía, el formulario funciona igual pero sólo con descarga de CSV.  */
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbwX8vznP7RFWA_XuMHf-pEJ1gtzMOlR1fAxBuBha8bv2vfGcfklY9ZaFJiSU2OW8q4/exec";
+
+/* Aleatorizar el orden de presentación de las expresiones.
+   El orden efectivo queda registrado en la variable `orden_*` de la salida. */
+const ALEATORIZAR = true;
+
+/* ═══════════════════════════════════════════════════════════════════
+   ÍTEMS — idénticos al instrumento original
+   ═══════════════════════════════════════════════════════════════════ */
+const EXPRESIONES = [
+  {key:"seguro",          palabra:"Seguro",         rango:true },
+  {key:"casi_seguro",     palabra:"Casi seguro",    rango:true },
+  {key:"seguramente",     palabra:"Seguramente",    rango:false},
+  {key:"muy_probable",    palabra:"Muy probable",   rango:true },
+  {key:"pienso_que_si",   palabra:"Pienso que sí",  rango:false},
+  {key:"creo_que_si",     palabra:"Creo que sí",    rango:true },
+  {key:"probable",        palabra:"Probable",       rango:false},
+  {key:"puede_ser",       palabra:"Puede ser",      rango:true },
+  {key:"quizas",          palabra:"Quizás",         rango:true },
+  {key:"igual_al_azar",   palabra:"Igual al azar",  rango:true },
+  {key:"no_se",           palabra:"No sé",          rango:true },
+  {key:"lo_dudo",         palabra:"Lo dudo",        rango:true },
+  {key:"poco_probable",   palabra:"Poco probable",  rango:false},
+  {key:"dificilmente",    palabra:"Difícilmente",   rango:true },
+  {key:"improbable",      palabra:"Improbable",     rango:false},
+  {key:"muy_improbable",  palabra:"Muy improbable", rango:false},
+];
+
+const PROVINCIAS = ["Buenos Aires","CABA","Catamarca","Chaco","Chubut","Córdoba","Corrientes",
+  "Entre Ríos","Formosa","Jujuy","La Pampa","La Rioja","Mendoza","Misiones","Neuquén","Río Negro",
+  "Salta","San Juan","San Luis","Santa Cruz","Santa Fe","Santiago del Estero",
+  "Tierra del Fuego","Tucumán"];
+
+/* ═══════════════════════════════════════════════════════════════════
+   ESTADO
+   ═══════════════════════════════════════════════════════════════════ */
+const D = {
+  participant_id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "-" + Math.random().toString(36).slice(2)),
+  inicio_iso: new Date().toISOString(),
+  t0: performance.now(),
+  orden_punto: [], orden_rango: [],
+  punto: {}, punto_ms: {},
+  rango_min: {}, rango_max: {}, rango_ms: {},
+  demo: {},
+  t_inicio_punto: 0, t_inicio_rango: 0,
+};
+
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const $ = s => document.querySelector(s);
+
+/* ═══════════════════════════════════════════════════════════════════
+   PANTALLA 2 — sliders de valor puntual
+   ═══════════════════════════════════════════════════════════════════ */
+const ordenPunto = ALEATORIZAR ? shuffle(EXPRESIONES) : EXPRESIONES;
+D.orden_punto = ordenPunto.map(e => e.key);
+
+ordenPunto.forEach(e => {
+  const d = document.createElement("div");
+  d.className = "item";
+  d.dataset.key = e.key;
+  d.innerHTML =
+    '<div class="item-head"><span class="word">' + e.palabra + '</span>' +
+    '<span class="readout">50%</span></div>' +
+    '<input type="range" min="0" max="100" step="1" value="50" ' +
+    'aria-label="' + e.palabra + ', probabilidad de 0 a 100 por ciento">' +
+    '<div class="scale"><span>0%</span><span>100%</span></div>';
+  const inp = d.querySelector("input");
+  const out = d.querySelector(".readout");
+  const marcar = () => {
+    if (!d.classList.contains("touched")) {
+      d.classList.add("touched");
+      D.punto_ms[e.key] = Math.round(performance.now() - D.t_inicio_punto);
+    }
+    d.classList.remove("err");
+    D.punto[e.key] = Number(inp.value);
+    out.textContent = inp.value + "%";
+  };
+  inp.addEventListener("input", marcar);
+  inp.addEventListener("keydown", ev => { if (/Arrow|Home|End|Page/.test(ev.key)) marcar(); });
+  $("#lista-punto").appendChild(d);
+});
+
+/* ═══════════════════════════════════════════════════════════════════
+   PANTALLA 3 — sliders de rango (dual)
+   ═══════════════════════════════════════════════════════════════════ */
+const conRango = EXPRESIONES.filter(e => e.rango);
+const ordenRango = ALEATORIZAR ? shuffle(conRango) : conRango;
+D.orden_rango = ordenRango.map(e => e.key);
+
+ordenRango.forEach(e => {
+  const d = document.createElement("div");
+  d.className = "item";
+  d.dataset.key = e.key;
+  d.innerHTML =
+    '<div class="item-head"><span class="word">' + e.palabra + '</span>' +
+    '<span class="readout">20% – 80%</span></div>' +
+    '<div class="dual"><div class="track"></div><div class="fill"></div>' +
+    '<input type="range" class="lo" min="0" max="100" step="1" value="20" ' +
+    'aria-label="' + e.palabra + ', valor mínimo">' +
+    '<input type="range" class="hi" min="0" max="100" step="1" value="80" ' +
+    'aria-label="' + e.palabra + ', valor máximo"></div>' +
+    '<div class="scale"><span>0%</span><span>100%</span></div>';
+
+  const lo = d.querySelector(".lo"), hi = d.querySelector(".hi"), fill = d.querySelector(".fill");
+  const out = d.querySelector(".readout");
+  const dual = d.querySelector(".dual");
+
+  const pintar = () => {
+    const a = Number(lo.value), b = Number(hi.value);
+    fill.style.left  = a + "%";
+    fill.style.width = (b - a) + "%";
+    out.textContent = a + "% – " + b + "%";
+    D.rango_min[e.key] = a; D.rango_max[e.key] = b;
+  };
+  const marcar = () => {
+    if (!d.classList.contains("touched")) {
+      d.classList.add("touched");
+      D.rango_ms[e.key] = Math.round(performance.now() - D.t_inicio_rango);
+    }
+    d.classList.remove("err");
+  };
+
+  /* --- teclado (los inputs siguen siendo focusables y responden a las flechas) --- */
+  lo.addEventListener("input", () => {
+    if (Number(lo.value) > Number(hi.value)) lo.value = hi.value;
+    marcar(); pintar();
+  });
+  hi.addEventListener("input", () => {
+    if (Number(hi.value) < Number(lo.value)) hi.value = lo.value;
+    marcar(); pintar();
+  });
+
+  /* --- puntero: el arrastre lo maneja el contenedor --- */
+  const pctDe = ev => {
+    const r = dual.getBoundingClientRect();
+    if (!r.width) return Number(lo.value);
+    return Math.max(0, Math.min(100, Math.round((ev.clientX - r.left) / r.width * 100)));
+  };
+
+  /* Elige el thumb más cercano al punto donde tocaste. Si los dos están en el mismo valor
+     empatan, y el desempate es por el lado hacia el que vas: si tocás a la izquierda movés
+     el mínimo, si tocás a la derecha el máximo. Eso es lo que evita que queden trabados
+     cuando se juntan en 0 o en 100. */
+  const elegir = p => {
+    const a = Number(lo.value), b = Number(hi.value);
+    const da = Math.abs(p - a), db = Math.abs(p - b);
+    if (da < db) return lo;
+    if (db < da) return hi;
+    return p < a ? lo : hi;
+  };
+
+  let activo = null;      // el input que se está arrastrando
+  let pendiente = false;  // hay un arrastre empezado pero todavía no se sabe cuál thumb es
+
+  const tomar = inp => {
+    activo = inp;
+    activo.classList.add("arriba");
+    (activo === lo ? hi : lo).classList.remove("arriba");
+    try { activo.focus({preventScroll:true}); } catch (_) {}
+  };
+
+  const aplicar = p => {
+    // clamp: el mínimo nunca pasa al máximo ni al revés, así los thumbs no se cruzan
+    activo.value = activo === lo
+      ? Math.min(p, Number(hi.value))
+      : Math.max(p, Number(lo.value));
+    marcar(); pintar();
+  };
+
+  dual.addEventListener("pointerdown", ev => {
+    if (ev.button > 0) return;                 // solo botón principal
+    const p = pctDe(ev);
+    try { dual.setPointerCapture(ev.pointerId); } catch (_) {}
+    ev.preventDefault();
+    /* Si los dos thumbs están superpuestos y tocaste justo encima, no hay forma de saber
+       cuál querés mover: cualquier elección deja al otro trabado contra el clamp. Esperamos
+       al primer movimiento y decidimos por la dirección. */
+    if (Number(lo.value) === Number(hi.value) && p === Number(lo.value)) {
+      pendiente = true; activo = null;
+      return;
+    }
+    tomar(elegir(p));
+    aplicar(p);
+  });
+
+  dual.addEventListener("pointermove", ev => {
+    const p = pctDe(ev);
+    if (pendiente) {
+      if (p === Number(lo.value)) return;      // todavía no se movió: seguimos esperando
+      tomar(p < Number(lo.value) ? lo : hi);
+      pendiente = false;
+    }
+    if (activo) aplicar(p);
+  });
+
+  const soltar = ev => {
+    if (!activo && !pendiente) return;
+    activo = null; pendiente = false;
+    try { dual.releasePointerCapture(ev.pointerId); } catch (_) {}
+  };
+  dual.addEventListener("pointerup", soltar);
+  dual.addEventListener("pointercancel", soltar);
+
+  pintar();
+  $("#lista-rango").appendChild(d);
+});
+
+/* ═══════════════════════════════════════════════════════════════════
+   NAVEGACIÓN
+   ═══════════════════════════════════════════════════════════════════ */
+const PANTALLAS = ["s-intro","s-instr","s-punto","s-rango","s-demo","s-fin"];
+function ir(id){
+  PANTALLAS.forEach(p => $("#"+p).classList.toggle("active", p===id));
+  $("#bar").style.width = (PANTALLAS.indexOf(id) / (PANTALLAS.length-1) * 100) + "%";
+  window.scrollTo({top:0, behavior:"instant"});
+  if (id==="s-punto" && !D.t_inicio_punto) D.t_inicio_punto = performance.now();
+  if (id==="s-rango" && !D.t_inicio_rango) D.t_inicio_rango = performance.now();
+}
+document.querySelectorAll("[data-back]").forEach(b =>
+  b.addEventListener("click", () => ir(b.dataset.back)));
+
+$("#btn-intro").addEventListener("click", () => ir("s-instr"));
+$("#btn-instr").addEventListener("click", () => ir("s-punto"));
+
+function validarSliders(contenedor, errBox){
+  const faltan = [...document.querySelectorAll(contenedor + " .item")].filter(d => !d.classList.contains("touched"));
+  faltan.forEach(d => d.classList.add("err"));
+  $(errBox).classList.toggle("show", faltan.length > 0);
+  if (faltan.length) faltan[0].scrollIntoView({behavior:"smooth", block:"center"});
+  return faltan.length === 0;
+}
+$("#btn-punto").addEventListener("click", () => { if (validarSliders("#lista-punto","#err-punto")) ir("s-rango"); });
+$("#btn-rango").addEventListener("click", () => { if (validarSliders("#lista-rango","#err-rango")) ir("s-demo"); });
+
+/* provincia condicional — los value van sin tildes para no ensuciar el CSV */
+const slug = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/ /g,"-");
+PROVINCIAS.forEach(p => {
+  const o = document.createElement("option");
+  o.value = slug(p); o.textContent = p;
+  $("#provincia").appendChild(o);
+});
+$("#pais").addEventListener("change", () => {
+  const esAr = $("#pais").value === "argentina";
+  $("#f-prov").style.display = esAr ? "block" : "none";
+  if (!esAr) $("#provincia").value = "";
+});
+
+/* ═══════════════════════════════════════════════════════════════════
+   ENVÍO
+   ═══════════════════════════════════════════════════════════════════ */
+$("#btn-demo").addEventListener("click", () => {
+  const edad = $("#edad").value.trim();
+  const checks = [
+    ["#f-edad",  edad !== "" && Number(edad) >= 14 && Number(edad) <= 99],
+    ["#f-genero", $("#genero").value !== ""],
+    ["#f-educ",   $("#nivel_educativo").value !== ""],
+    ["#f-pais",   $("#pais").value !== ""],
+    ["#f-prov",   $("#pais").value !== "argentina" || $("#provincia").value !== ""],
+  ];
+  let ok = true;
+  checks.forEach(([sel, valido]) => { $(sel).classList.toggle("err", !valido); if (!valido) ok = false; });
+  $("#err-demo").classList.toggle("show", !ok);
+  if (!ok) { document.querySelector(".field.err").scrollIntoView({behavior:"smooth", block:"center"}); return; }
+
+  D.demo = {
+    edad: Number(edad),
+    genero: $("#genero").value,
+    nivel_educativo: $("#nivel_educativo").value,
+    pais: $("#pais").value,
+    provincia: $("#provincia").value || "",
+  };
+  D.duracion_total_ms = Math.round(performance.now() - D.t0);
+  ir("s-fin");
+  $("#idout").textContent = D.participant_id;
+  enviar();
+});
+
+/* fila plana: una respuesta = una fila */
+function fila(){
+  const r = {
+    participant_id: D.participant_id,
+    fuente: "humano",
+    timestamp_iso: D.inicio_iso,
+    orden_punto: D.orden_punto.join("|"),
+    orden_rango: D.orden_rango.join("|"),
+  };
+  EXPRESIONES.forEach(e => {
+    r["punto_" + e.key]    = D.punto[e.key];
+    r["puntoms_" + e.key]  = D.punto_ms[e.key];
+  });
+  EXPRESIONES.filter(e => e.rango).forEach(e => {
+    r["min_" + e.key]     = D.rango_min[e.key];
+    r["max_" + e.key]     = D.rango_max[e.key];
+    r["rangoms_" + e.key] = D.rango_ms[e.key];
+  });
+  Object.assign(r, D.demo);
+  r.duracion_total_ms = D.duracion_total_ms;
+  r.user_agent = navigator.userAgent;
+  return r;
+}
+
+function enviar(){
+  const est = $("#estado-envio");
+  if (!ENDPOINT) {
+    est.textContent = "Modo local: no hay servidor configurado. Descargá tu CSV y entregalo como te indiquen.";
+    return;
+  }
+  est.textContent = "Enviando…";
+
+  // text/plain evita el preflight CORS que Apps Script no responde
+  const opciones = {
+    method: "POST",
+    headers: {"Content-Type": "text/plain;charset=utf-8"},
+    body: JSON.stringify(fila()),
+  };
+
+  /* Marcador para distinguir dos fracasos que se parecen pero se arreglan distinto:
+       - el navegador no pudo ni leer la respuesta (CORS / red)  -> tiene sentido reintentar a ciegas
+       - el servidor contestó y dijo que falló                    -> reintentar no arregla nada  */
+  const fallaDelServidor = msg => Promise.reject({ servidor: true, msg: msg });
+
+  fetch(ENDPOINT, opciones)
+    .then(res => res.ok ? res.text() : fallaDelServidor("HTTP " + res.status))
+    .then(txt => {
+      /* Apps Script responde HTTP 200 aunque su propio try/catch haya fallado: el error viene
+         en el cuerpo como {ok:false}. Mirando sólo res.ok, el formulario decía "registrada
+         correctamente" mientras la fila nunca se escribía. Hay que leer el cuerpo. */
+      let r = null;
+      try { r = JSON.parse(txt); } catch (_) {}
+      if (r && r.ok === true)  { est.textContent = "Respuesta registrada correctamente. ✓"; return; }
+      if (r && r.ok === false) return fallaDelServidor(r.error || "el servidor rechazó la respuesta");
+      // cualquier otra cosa (el HTML de login de Google, por ejemplo) no se da por buena
+      return fallaDelServidor("respuesta inesperada del servidor");
+    })
+    .catch(err => {
+      if (err && err.servidor) {
+        est.textContent = "El servidor recibió tu respuesta pero no pudo guardarla (" + err.msg +
+          "). Descargá el CSV y entregalo; avisale a quien coordina el taller.";
+        console.error("Apps Script:", err.msg);
+        return;
+      }
+      /* Reintento "a ciegas". Si la página se abre con file:// (doble clic en el archivo),
+         el origen es null y el navegador no nos deja leer la respuesta, aunque el POST sí
+         llega al servidor. Con mode:"no-cors" el envío se completa pero la respuesta es
+         opaca: no podemos confirmarla. El Apps Script deduplica por participant_id, así que
+         si el primer intento ya había escrito la fila, este reintento no genera duplicados. */
+      return fetch(ENDPOINT, Object.assign({mode: "no-cors"}, opciones))
+        .then(() => {
+          est.textContent = "Respuesta enviada. El navegador no permite confirmar la recepción " +
+            "(pasa al abrir el archivo localmente); si querés asegurarte, descargá el CSV.";
+        })
+        .catch(e2 => {
+          est.textContent = "No se pudo enviar la respuesta (" + e2 + "). Descargá el CSV y entregalo.";
+        });
+    });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DESCARGAS
+   ═══════════════════════════════════════════════════════════════════ */
+function bajar(nombre, contenido, mime){
+  const url = URL.createObjectURL(new Blob(["﻿" + contenido], {type: mime}));
+  const a = document.createElement("a");
+  a.href = url; a.download = nombre; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+function aCsv(obj){
+  const esc = v => {
+    const s = v === undefined || v === null ? "" : String(v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+  };
+  const k = Object.keys(obj);
+  return k.join(",") + "\n" + k.map(x => esc(obj[x])).join(",") + "\n";
+}
+$("#btn-csv").addEventListener("click", () => bajar("qqq_" + D.participant_id.slice(0,8) + ".csv", aCsv(fila()), "text/csv;charset=utf-8"));
+$("#btn-json").addEventListener("click", () => bajar("qqq_" + D.participant_id.slice(0,8) + ".json", JSON.stringify(fila(), null, 2), "application/json"));
+
+/* helper para testing automatizado / demo en clase */
+window.__QQQ__ = {D, EXPRESIONES, fila, ir};
+</script>
+</body>
+</html>
