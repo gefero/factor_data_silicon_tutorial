@@ -4,6 +4,10 @@
 maybe/
 migracion/
 
+# Node (solo para correr los tests del formulario)
+node_modules/
+package-lock.json
+
 # History files
 .Rhistory
 .Rapp.history

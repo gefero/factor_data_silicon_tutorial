@@ -10,37 +10,91 @@ Este repositorio contiene materiales para el taller de Silicon Sampling. A la fe
 # Estructura de las carpetas
 ```
 factor_data_silicon_tutorial/
-├── LICENSE
-├── README.md
-├── README_ES.md
-├── _config.yml
+├── form/
 ├── imgs/
-│   └── LOGO-FactorData-Negro.png
 ├── input_data/
-│   └── WVS_wave7_migracion_prompts.csv
 ├── output_data/
-│   ├── gpt-4o_Q130_v2_WVS_silicon_empirico_results.csv
-│   ├── gpt-4o_V1_WVS_silicon_empirico_results.csv
-│   ├── gpt-oss_120B_Q130_v2_WVS_silicon_empirico_results.csv
-│   ├── gpt-oss_120b_V1_WVS_silicon_empirico_results.csv
-│   ├── gpt-oss_20B_Q130_v2_WVS_silicon_empirico_results.csv
-│   └── gpt-oss_20b_V1_WVS_silicon_empirico_results.csv
+├── outputs_for_analysis/
+├── results/
+├── results_R/
+├── figures/
+├── figures_R/
 └── src/
-    ├── EN_tutorial_wvs_silicon_empirico.ipynb
-    └── ES_tutorial_wvs_silicon_empirico.ipynb
 ```
 
-- `src` contiene los notebooks del tutorial (versiones en inglés y español)
-- `input_data` contiene datos crudos
-- `output_data` contiene datos de salida (simulaciones)
+- `src` — los notebooks del tutorial y el código de análisis: los del análisis 1 (versiones en inglés y español), el del análisis 2 (`ES_tutorial_expresiones_silicon.ipynb`, solo en español), los scripts de agregación y de análisis de sesgo en Python, el notebook que los unifica y la réplica en R
+- `form` — el formulario web con el que se recolecta la línea de base humana del análisis 2 (ver más abajo), junto con su guía de despliegue y su suite de tests
+- `input_data` — datos crudos: los perfiles de encuestados de la WVS Ola 7 usados para construir los prompts
+- `output_data` — resultados de simulación por encuestado, un CSV por modelo (gpt-4o, gpt-oss-20B, gpt-oss-120B) y versión de prompt (V1, V2)
+- `outputs_for_analysis` — distribuciones agregadas de Q130 por modelo × país (simuladas V1/V2 y la línea de base empírica de la WVS), más el texto completo de ambos prompts
+- `results` — salidas del análisis de sesgo de punto medio (ver más abajo): tablas de métricas y de diferencias apareadas, y el informe completo
+- `figures` — las figuras del análisis (PNG a 300 dpi)
+- `results_R` / `figures_R` — las mismas tablas y figuras producidas por la réplica en R
+- `imgs` — logos e imágenes usadas por el sitio
+
+En la raíz del repo están además la licencia, este README y su versión en inglés (`README.md`), la configuración de GitHub Pages (`_config.yml`, `_layouts/`) y `CLAUDE.md` (la especificación del análisis de sesgo).
+
+# Análisis
+
+Más allá del tutorial en sí, el repo incluye dos análisis reproducibles de **sesgo de punto medio** en muestras de silicio. Se diferencian en la escala de respuesta que exploran —una escala ordinal sin punto medio y una escala continua que sí lo tiene— y en si la línea de base humana proviene de una encuesta existente o se releva durante el taller.
+
+# 1. Análisis de sesgo de punto medio (Q130, prompt V1 vs V2)
+
+Más allá del tutorial, el repo incluye un análisis reproducible del **sesgo de punto medio** en las muestras de silicio para la pregunta Q130 de la WVS ("¿Qué debería hacer el gobierno respecto de las personas de otros países que vienen a trabajar acá?", una escala ordinal de 4 puntos sin punto medio neutral). Como la escala no tiene punto medio, el sesgo se operacionaliza como **concentración en las categorías interiores**: exceso de masa de probabilidad en las dos opciones interiores respecto de las distribuciones empíricas de la WVS en Argentina, Uruguay y Estados Unidos. El prompt V2 (narrativa en primera persona + instrucciones anti-moderación) se evalúa como mitigación del V1 de base.
+
+Pipeline:
+
+1. `src/aggregate_q130.py` — agrega los resultados crudos por encuestado de `output_data/` en los resúmenes de distribuciones en formato largo de `outputs_for_analysis/`.
+2. `src/analyze_q130_bias.py` — calcula las métricas por modelo × país × prompt (entropía normalizada, ratio de entropía vs WVS, masa interior/extrema, divergencia de Jensen–Shannon, Wasserstein-1 ordinal, errores con signo por categoría, posición media en la escala) con intervalos de confianza por bootstrap multinomial, y corre los tests apareados intra-modelo de las hipótesis de mitigación (Wilcoxon de rangos con signo, tamaños de efecto rank-biserial, test de signos). Salidas: `results/metrics.csv`, `results/paired_differences.csv`, el informe completo en [`results/report.md`](results/report.md) y cuatro figuras a 300 dpi en `figures/`.
+
+Se corren desde la raíz del repo (requiere `pandas`, `scipy`, `matplotlib`):
+
+```bash
+python src/aggregate_q130.py
+python src/analyze_q130_bias.py
+```
+
+El notebook [`src/q130_aggregation_and_bias_analysis.ipynb`](src/q130_aggregation_and_bias_analysis.ipynb) unifica ambos pasos en un único documento ejecutable (mismo código, mismas salidas), con las figuras y tablas renderizadas en línea.
+
+Una **réplica independiente en R / tidyverse**, [`src/q130_aggregation_and_bias_analysis.R`](src/q130_aggregation_and_bias_analysis.R) (requiere `dplyr`, `tidyr`, `readr`, `purrr`, `stringr`, `ggplot2`), rederiva todo el pipeline y lo coteja contra las salidas de Python: las agregaciones recalculadas coinciden exactamente con `outputs_for_analysis/` y todas las métricas deterministas coinciden con `results/metrics.csv` con una tolerancia < 1e-9 (verificado con asserts en el script; solo difieren los intervalos por bootstrap, porque R y NumPy usan generadores aleatorios distintos). Escribe sus salidas en `results_R/` y `figures_R/` (versiones en ggplot2 de las mismas cuatro figuras):
+
+```bash
+Rscript src/q130_aggregation_and_bias_analysis.R
+```
+
+Resultados principales (detalles y advertencias en [`results/report.md`](results/report.md)): bajo el prompt V1 los tres modelos (gpt-4o, gpt-oss-20B, gpt-oss-120B) ubican entre el 99% y el 100% de su masa en las dos categorías interiores y están fuertemente comprimidos respecto de la WVS en las 9 celdas modelo × país; el prompt V2 reduce la concentración interior en 9/9 celdas y aumenta la entropía y mejora la fidelidad a la WVS (menor JSD) en 8/9, sin sobrecorrección detectada.
+
+# 2. Expresiones verbales de probabilidad (línea de base humana vs muestra de silicio)
+
+Q130 usa una escala ordinal **sin** punto medio, de modo que el sesgo debe medirse de forma indirecta. Este segundo análisis usa una **escala continua de 0 a 100 que sí lo tiene**, y compara a los modelos contra una línea de base humana relevada por los propios participantes del taller.
+
+El instrumento replica la **Etapa 1 del experimento "Quizás, quizás, quizás"** ([El Gato y La Caja](https://elgatoylacaja.com/notas/quizas-quizas-quizas), junto al Decision-making Lab, University of Rochester; n > 8.000 en la toma original): se le presentan a la persona expresiones verbales de incerteza y se le pide que indique qué probabilidad transmite cada una — 16 expresiones en un slider de 0 a 100, un rango mín–máx para 10 de ellas y los regresores habituales. La toma de datos original cerró en octubre de 2025, así que esta réplica genera datos propios.
+
+**Materiales del ejercicio**
+
+1. [**Responder el formulario**](https://gefero.github.io/factor_data_silicon_tutorial/form/) — hacelo antes de abrir el notebook: la línea de base humana son las respuestas de la clase.
+2. [**Respuestas de la clase**](https://docs.google.com/spreadsheets/d/1V_3baEk7XSe36Mdlvn47bVgDBBcbMaYE8NmguHS9Zn8/edit?usp=sharing) — planilla pública, se actualiza en vivo. El notebook la lee directo desde acá.
+3. [**Notebook en Google Colab**](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) — la simulación y el análisis comparado.
+
+
+Después se somete el mismo instrumento a los modelos, condicionados con los perfiles relevados en la muestra humana, y se comparan ambas en: masa en el punto medio (`[45, 55]`), exceso de respuestas exactamente en 50, dispersión entre participantes, ancho del rango y coherencia interna (`mín ≤ puntual ≤ máx`, 81% en el estudio original).
+
+El [notebook](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) hace el paso a paso: lee la hoja de respuestas humanas, arma un perfil en primera persona con los demográficos de cada participante, y hace **26 llamadas independientes por participante** — una por expresión, sin contexto de las otras, para que el modelo esté en la misma condición que las personas, que vieron los ítems de a uno y en orden aleatorio. Igual que en el análisis 1, hay dos versiones de prompt: `v1` neutral como línea de base y `v2` con instrucción anti-punto-medio, porque medir el sesgo con un prompt que ya dice "no uses 50" no mide nada.
+
 
 # Versión Google Colab
 Podés abrir los notebooks del tutorial directamente en Google Colab:
+
+**Análisis 1 — WVS Ola 7 (Q121, Q122, Q128, Q130)**
 - [Notebook en español](https://drive.google.com/file/d/1qRC_q_Uvr7tfBVVV3N-Leu9MtYmwbXkB/view?usp=sharing)
 - [Notebook en inglés](https://drive.google.com/file/d/1vzEvTgfsQWd_qJAqDqYysa5yl6O3FTvK/view?usp=sharing)
 
+**Análisis 2 — Expresiones verbales de probabilidad**
+- [Notebook en español](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) — solo en español, porque el estímulo son las expresiones en castellano
+
 # Diapositivas
-- [Ver presentación](https://docs.google.com/presentation/d/1NYN-YYr1fLNvnJ9whPko7_ZYv6M9Wp5eVbb4zZ98Xj4/edit?usp=sharing)
+- [Presentación — MPIDR Summer Data Science Incubator Program](https://docs.google.com/presentation/d/1NYN-YYr1fLNvnJ9whPko7_ZYv6M9Wp5eVbb4zZ98Xj4/edit?usp=sharing)
+- [Presentación — SICSS Buenos Aires 2026](https://docs.google.com/presentation/d/1Rr-rDShb2XzDm-_ThhWuQKi0TcTA9aA5Aw-wpzt8-yU/edit?usp=sharing)
 
 # Stack
 El tutorial corre íntegramente en **Python 3** sobre notebooks de **Jupyter / Google Colab**. Los componentes principales son:
@@ -52,6 +106,7 @@ El tutorial corre íntegramente en **Python 3** sobre notebooks de **Jupyter / G
   - [Ollama](https://ollama.com/) (`ollama`) para correr modelos de pesos abiertos en el entorno de Colab — por ejemplo `gpt-oss:20b` y `gpt-oss:120b`.
 - **Manejo y análisis de datos**
   - [pandas](https://pandas.pydata.org/) para leer, transformar y agregar los datos de la encuesta y de las simulaciones.
+  - [SciPy](https://scipy.org/) para los tests estadísticos del análisis de sesgo de punto medio (Wilcoxon de rangos con signo, test de signos).
 - **Visualización**
   - [matplotlib](https://matplotlib.org/) y [seaborn](https://seaborn.pydata.org/) para los gráficos y las tablas.
 - **Utilidades**

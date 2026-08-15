@@ -10,6 +10,7 @@ This repository contains materials for the Silicon Sampling workshop. To date, t
 # Folder structure
 ```
 factor_data_silicon_tutorial/
+├── form/
 ├── imgs/
 ├── input_data/
 ├── output_data/
@@ -21,7 +22,8 @@ factor_data_silicon_tutorial/
 └── src/
 ```
 
-- `src` — the tutorial notebooks (English and Spanish versions) and the analysis code: the aggregation and bias-analysis Python scripts, the notebook that unifies them, and the R replication
+- `src` — the tutorial notebooks and the analysis code: those for analysis 1 (English and Spanish versions), the one for analysis 2 (`ES_tutorial_expresiones_silicon.ipynb`, Spanish only), the aggregation and bias-analysis Python scripts, the notebook that unifies them, and the R replication
+- `form` — the web form used to collect the human baseline for analysis 2 (see below), plus its deployment guide and test suite
 - `input_data` — raw data: the WVS Wave 7 respondent profiles used to build the prompts
 - `output_data` — per-respondent simulation results, one CSV per model (gpt-4o, gpt-oss-20B, gpt-oss-120B) and prompt version (V1, V2)
 - `outputs_for_analysis` — aggregated Q130 distributions per model × country (simulated V1/V2 and the empirical WVS baseline), plus the full text of both prompts
@@ -32,7 +34,11 @@ factor_data_silicon_tutorial/
 
 The repo root also holds the licence, this README and its Spanish version (`README_ES.md`), the GitHub Pages configuration (`_config.yml`, `_layouts/`), and `CLAUDE.md` (the specification of the bias analysis).
 
-# Middle-point bias analysis (Q130, prompt V1 vs V2)
+# Analyses
+
+Beyond the tutorial itself, the repo includes two reproducible analyses of **middle-point bias** in silicon samples. They differ in the response scale they probe — an ordinal scale with no midpoint, and a continuous scale with one — and in whether the human baseline comes from an existing survey or is collected in the workshop.
+
+# 1. Middle-point bias analysis (Q130, prompt V1 vs V2)
 
 Beyond the tutorial, the repo includes a reproducible analysis of **middle-point bias** in the silicon samples for WVS Q130 ("What should the government do about people from other countries coming here to work?", a 4-point ordinal scale with no neutral midpoint). Since the scale has no midpoint, the bias is operationalized as **interior-category concentration**: excess probability mass on the two interior options relative to the empirical WVS distributions in Argentina, Uruguay and the United States. Prompt V2 (first-person narrative + anti-moderation instructions) is evaluated as a mitigation of the V1 baseline.
 
@@ -58,13 +64,36 @@ Rscript src/q130_aggregation_and_bias_analysis.R
 
 Headline findings (details and caveats in [`results/report.md`](results/report.md)): under prompt V1 all three models (gpt-4o, gpt-oss-20B, gpt-oss-120B) place 99–100% of their mass on the two interior categories and are strongly compressed relative to WVS in all 9 model × country cells; prompt V2 reduces interior concentration in 9/9 cells and increases entropy and improves fidelity to WVS (lower JSD) in 8/9, with no overcorrection detected.
 
+# 2. Verbal probability expressions (human baseline vs silicon sample)
+
+Q130 uses an ordinal scale **without** a midpoint, so the bias has to be measured indirectly. This second analysis uses a **continuous 0–100 scale that does have one**, and compares the models against a human baseline collected by the workshop participants themselves.
+
+The instrument replicates **Stage 1 of the "Quizás, quizás, quizás" experiment** ([El Gato y La Caja](https://elgatoylacaja.com/notas/quizas-quizas-quizas), with the Decision-making Lab, University of Rochester; n > 8,000 in the original run): participants are shown verbal expressions of uncertainty and asked what probability each one conveys — 16 expressions on a 0–100 slider, a min–max range for 10 of them, and the usual regressors. The original data collection closed in October 2025, so this replication generates its own data.
+
+**Exercise materials**
+
+1. [**Fill in the form**](https://gefero.github.io/factor_data_silicon_tutorial/form/) — do this before opening the notebook: the human baseline is the class's own responses.
+2. [**Class responses**](https://docs.google.com/spreadsheets/d/1V_3baEk7XSe36Mdlvn47bVgDBBcbMaYE8NmguHS9Zn8/edit?usp=sharing) — public sheet, updated live. The notebook reads straight from it.
+3. [**Notebook on Google Colab**](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) — the simulation and the comparative analysis. Spanish only.
+
+The same instrument is then put to the models, conditioned on the profiles collected from the human sample, and the two are compared on: mass at the midpoint (`[45, 55]`), excess of responses at exactly 50, between-participant dispersion, range width, and internal coherence (`min ≤ point ≤ max`, 81% in the original study).
+
+The [notebook](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) walks through it: it reads the human response sheet, builds a first-person profile from each participant's demographics, and issues **26 independent calls per participant** — one per expression, with no context from the others, so that the model faces the same condition as the humans, who saw the items one at a time in randomised order. As in analysis 1 there are two prompt versions: a neutral `v1` baseline and a `v2` with an explicit anti-midpoint instruction, since measuring the bias with a prompt that already says "don't use 50" measures nothing.
+
+
 # Google Colab version
 You can open the tutorial notebooks directly in Google Colab:
+
+**Analysis 1 — WVS Wave 7 (Q121, Q122, Q128, Q130)**
 - [Spanish notebook](https://drive.google.com/file/d/1qRC_q_Uvr7tfBVVV3N-Leu9MtYmwbXkB/view?usp=sharing)
 - [English notebook](https://drive.google.com/file/d/1vzEvTgfsQWd_qJAqDqYysa5yl6O3FTvK/view?usp=sharing)
 
+**Analysis 2 — Verbal probability expressions**
+- [Spanish notebook](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) — Spanish only: the stimulus *is* the set of Spanish expressions, so translating the prompts would change the object of study
+
 # Slides
-- [View presentation](https://docs.google.com/presentation/d/1NYN-YYr1fLNvnJ9whPko7_ZYv6M9Wp5eVbb4zZ98Xj4/edit?usp=sharing)
+- [Presentation — MPIDR Summer Data Science Incubator Program](https://docs.google.com/presentation/d/1NYN-YYr1fLNvnJ9whPko7_ZYv6M9Wp5eVbb4zZ98Xj4/edit?usp=sharing)
+- [Presentation — SICSS Buenos Aires 2026](https://docs.google.com/presentation/d/1Rr-rDShb2XzDm-_ThhWuQKi0TcTA9aA5Aw-wpzt8-yU/edit?usp=sharing)
 
 # Stack
 The tutorial runs entirely in **Python 3** on **Jupyter / Google Colab** notebooks. The main components are:
