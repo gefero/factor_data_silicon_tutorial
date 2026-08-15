@@ -89,7 +89,7 @@ You can open the tutorial notebooks directly in Google Colab:
 - [English notebook](https://drive.google.com/file/d/1vzEvTgfsQWd_qJAqDqYysa5yl6O3FTvK/view?usp=sharing)
 
 **Analysis 2 — Verbal probability expressions**
-- [Spanish notebook](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) — Spanish only: the stimulus *is* the set of Spanish expressions, so translating the prompts would change the object of study
+- [Spanish notebook](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) 
 
 # Slides
 - [Presentation — MPIDR Summer Data Science Incubator Program](https://docs.google.com/presentation/d/1NYN-YYr1fLNvnJ9whPko7_ZYv6M9Wp5eVbb4zZ98Xj4/edit?usp=sharing)

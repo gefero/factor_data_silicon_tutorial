@@ -90,7 +90,7 @@ Podés abrir los notebooks del tutorial directamente en Google Colab:
 - [Notebook en inglés](https://drive.google.com/file/d/1vzEvTgfsQWd_qJAqDqYysa5yl6O3FTvK/view?usp=sharing)
 
 **Análisis 2 — Expresiones verbales de probabilidad**
-- [Notebook en español](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) — solo en español, porque el estímulo son las expresiones en castellano
+- [Notebook en español](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) 
 
 # Diapositivas
 - [Presentación — MPIDR Summer Data Science Incubator Program](https://docs.google.com/presentation/d/1NYN-YYr1fLNvnJ9whPko7_ZYv6M9Wp5eVbb4zZ98Xj4/edit?usp=sharing)
