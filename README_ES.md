@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 **🇪🇸 Español** | [🇬🇧 English](README.md)
 
 # Introducción
