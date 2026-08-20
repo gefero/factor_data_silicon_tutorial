@@ -79,10 +79,12 @@ The instrument replicates **Stage 1 of the "Quizás, quizás, quizás" experimen
 1. [**Fill in the form**](https://gefero.github.io/factor_data_silicon_tutorial/form/) — do this before opening the notebook: the human baseline is the class's own responses.
 2. [**Class responses**](https://docs.google.com/spreadsheets/d/1V_3baEk7XSe36Mdlvn47bVgDBBcbMaYE8NmguHS9Zn8/edit?usp=sharing) — public sheet, updated live. The notebook reads straight from it.
 3. [**Notebook on Google Colab**](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) — the simulation and the comparative analysis. Spanish only.
+4. [**Notebook en Google Colab - completo-**](https://colab.research.google.com/drive/1jBcu4K2oRiRDDtHd9qC3MY8YG2iNR36a?usp=sharing) — la simulación y el análisis comparado.
+
 
 The same instrument is then put to the models, conditioned on the profiles collected from the human sample, and the two are compared on: mass at the midpoint (`[45, 55]`), excess of responses at exactly 50, between-participant dispersion, range width, and internal coherence (`min ≤ point ≤ max`, 81% in the original study).
 
-The [notebook](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) walks through it: it reads the human response sheet, builds a first-person profile from each participant's demographics, and issues **26 independent calls per participant** — one per expression, with no context from the others, so that the model faces the same condition as the humans, who saw the items one at a time in randomised order. As in analysis 1 there are two prompt versions: a neutral `v1` baseline and a `v2` with an explicit anti-midpoint instruction, since measuring the bias with a prompt that already says "don't use 50" measures nothing.
+The [notebook](https://colab.research.google.com/drive/1jBcu4K2oRiRDDtHd9qC3MY8YG2iNR36a?usp=sharing) walks through it: it reads the human response sheet, builds a first-person profile from each participant's demographics, and issues **26 independent calls per participant** — one per expression, with no context from the others, so that the model faces the same condition as the humans, who saw the items one at a time in randomised order. As in analysis 1 there are two prompt versions: a neutral `v1` baseline and a `v2` with an explicit anti-midpoint instruction, since measuring the bias with a prompt that already says "don't use 50" measures nothing.
 
 
 # Google Colab version

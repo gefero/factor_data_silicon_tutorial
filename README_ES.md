@@ -78,12 +78,13 @@ El instrumento replica la **Etapa 1 del experimento "Quizás, quizás, quizás"*
 
 1. [**Responder el formulario**](https://gefero.github.io/factor_data_silicon_tutorial/form/) — hacelo antes de abrir el notebook: la línea de base humana son las respuestas de la clase.
 2. [**Respuestas de la clase**](https://docs.google.com/spreadsheets/d/1V_3baEk7XSe36Mdlvn47bVgDBBcbMaYE8NmguHS9Zn8/edit?usp=sharing) — planilla pública, se actualiza en vivo. El notebook la lee directo desde acá.
-3. [**Notebook en Google Colab**](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) — la simulación y el análisis comparado.
+3. [**Notebook en Google Colab - a resolver-**](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) — la simulación y el análisis comparado.
+4. [**Notebook en Google Colab - completo-**](https://colab.research.google.com/drive/1jBcu4K2oRiRDDtHd9qC3MY8YG2iNR36a?usp=sharing) — la simulación y el análisis comparado.
 
 
 Después se somete el mismo instrumento a los modelos, condicionados con los perfiles relevados en la muestra humana, y se comparan ambas en: masa en el punto medio (`[45, 55]`), exceso de respuestas exactamente en 50, dispersión entre participantes, ancho del rango y coherencia interna (`mín ≤ puntual ≤ máx`, 81% en el estudio original).
 
-El [notebook](https://colab.research.google.com/drive/1T4h5dJ_ALvIjDQUBzEJWoz9wHDW5dU7l?usp=sharing) hace el paso a paso: lee la hoja de respuestas humanas, arma un perfil en primera persona con los demográficos de cada participante, y hace **26 llamadas independientes por participante** — una por expresión, sin contexto de las otras, para que el modelo esté en la misma condición que las personas, que vieron los ítems de a uno y en orden aleatorio. Igual que en el análisis 1, hay dos versiones de prompt: `v1` neutral como línea de base y `v2` con instrucción anti-punto-medio, porque medir el sesgo con un prompt que ya dice "no uses 50" no mide nada.
+El [notebook](https://colab.research.google.com/drive/1jBcu4K2oRiRDDtHd9qC3MY8YG2iNR36a?usp=sharing) hace el paso a paso: lee la hoja de respuestas humanas, arma un perfil en primera persona con los demográficos de cada participante, y hace **26 llamadas independientes por participante** — una por expresión, sin contexto de las otras, para que el modelo esté en la misma condición que las personas, que vieron los ítems de a uno y en orden aleatorio. Igual que en el análisis 1, hay dos versiones de prompt: `v1` neutral como línea de base y `v2` con instrucción anti-punto-medio, porque medir el sesgo con un prompt que ya dice "no uses 50" no mide nada.
 
 
 # Versión Google Colab
