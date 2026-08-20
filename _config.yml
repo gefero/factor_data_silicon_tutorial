@@ -4,3 +4,9 @@ description: Access to materials
 remote_theme: pages-themes/cayman@v0.2.0
 plugins:
 - jekyll-remote-theme # add this line to the plugins list if you already have one
+
+# README.md carries YAML front matter (layout: default), so jekyll-readme-index
+# treats it as a regular page instead of promoting it to the site index. Without
+# this the build emits README.html but no index.html, and the site root 404s.
+readme_index:
+  with_frontmatter: true
